@@ -37,7 +37,7 @@ Without `RESEND_API_KEY`, emails (including sign-in codes) are printed in the te
 ## Deploying on Vercel
 
 1. In Vercel, **Add New → Project** and import this GitHub repository. The defaults are fine; the build command in `package.json` runs the database migrations.
-2. In the project, open **Storage → Create Database → Neon (Postgres)** and connect it. This sets `DATABASE_URL`. Add `DIRECT_URL` with the non-pooled connection string (Neon shows both; `DATABASE_URL_UNPOOLED` is the one to copy).
+2. In the project, open **Storage → Create Database → Neon (Postgres)** and connect it. This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for you.
 3. Add the other environment variables from `.env.example`:
    - `SESSION_SECRET`: a long random string (`openssl rand -base64 32`).
    - `ADMIN_EMAILS`: organiser emails, comma separated.
