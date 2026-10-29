@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  createdAt    DateTime      @default(now())
+  participants Participant[]
+}
+
+model LoginCode {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email, createdAt])
+}
+
+model Event {
+  id               String           @id @default(cuid())
+  slug             String           @unique
+  name             String
+  city             String
+  state            String
+  /// Two-letter state code used in Udyam numbers, e.g. "AP" for Andhra Pradesh.
+  stateCode        String
+  venue            String
+  /// First meeting day, "YYYY-MM-DD".
+  startDate        String
+  days             Int
+  /// Daily meeting window, "HH:MM" in local (IST) time.
+  dayStart         String
+  dayEnd           String
+  slotMinutes      Int
+  tables           Int
+  sectors          String[]
+  registrationOpen Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  participants     Participant[]
+  requests         MeetingRequest[]
+}
+
+enum Role {
+  BUYER
+  SELLER
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Participant {
+  id        String         @id @default(cuid())
+  eventId   String
+  userId    String
+  role      Role
+  status    ApprovalStatus
+  company   String
+  contact   String
+  phone     String         @default("")
+  place     String
+  sectors   String[]
+  products  String
+  about     String         @default("")
+  extra     String         @default("")
+  udyam     String?
+  iec       String?
+  createdAt DateTime       @default(now())
+  event     Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sent      MeetingRequest[] @relation("sent")
+  received  MeetingRequest[] @relation("received")
+
+  @@unique([eventId, userId])
+  @@index([eventId, role, status])
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+model MeetingRequest {
+  id        String        @id @default(cuid())
+  eventId   String
+  fromId    String
+  toId      String
+  note      String        @default("")
+  status    RequestStatus @default(PENDING)
+  /// Booked slot, set when accepted: "YYYY-MM-DD", "HH:MM", table number.
+  slotDate  String?
+  slotTime  String?
+  table     Int?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  event     Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  from      Participant   @relation("sent", fields: [fromId], references: [id], onDelete: Cascade)
+  to        Participant   @relation("received", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([fromId, toId])
+  @@unique([eventId, slotDate, slotTime, table])
+  @@index([eventId, status])
+}
