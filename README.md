@@ -43,5 +43,5 @@ Without `RESEND_API_KEY`, emails (including sign-in codes) are printed in the te
    - `ADMIN_EMAILS`: organiser emails, comma separated.
    - `APP_URL`: the site address, e.g. `https://rbsm.indiasmeforum.org`.
    - `RESEND_API_KEY` and `EMAIL_FROM`: create a free account at resend.com, verify the `indiasmeforum.org` domain, and create an API key.
-4. Deploy. Then run the seed once from your computer with the production `DATABASE_URL` (`npm run db:seed`), or create the event from the Organiser page.
+4. Deploy. The first deploy creates the tables and the Tirupati RBSM 2026 event. Sign in with an organiser email to manage it.
 5. To use `rbsm.indiasmeforum.org`, add it under **Settings → Domains** and create the CNAME record Vercel shows at your DNS provider.
